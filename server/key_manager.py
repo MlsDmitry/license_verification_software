@@ -54,7 +54,7 @@ def _create_verifier():
 def setup_keys(save_to_file=True):
     global privkey, pubkey
     
-    privkey, pubkey = _load_keys_from_file()
+    pubkey, privkey = _load_keys_from_file()
     
     if not pubkey or not privkey:
         _generate_keys()
@@ -76,7 +76,7 @@ def generate_signature(data: str):
     return signature
 
 def verify_signature(data: str, signature: bytes) -> bool:
-    hash = _generate_hash512_256(data)
+    hash = _generate_hash512_256(data.encode('utf-8'))
     try:
         verifier.verify(hash, signature)
         return True
@@ -84,7 +84,7 @@ def verify_signature(data: str, signature: bytes) -> bool:
         return False
     
 
-def _generate_hash512_256(data: str):
+def _generate_hash512_256(data: bytes):
     """
     Generate SHA-512 hash and truncate it to 256 bytes
     """
