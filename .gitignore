@@ -111,6 +111,7 @@ celerybeat.pid
 # .env
 server.env
 *.ini
+creds.txt
 env/
 venv/
 ENV/
