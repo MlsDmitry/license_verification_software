@@ -23,3 +23,10 @@ class Token(Base):
 
     def generate_token(self):
         return secrets.token_urlsafe(1024)
+    
+    def as_dict(self):
+        return {
+            'token': self.token,
+            'type': self.token,
+            'creation_date': self.created_date.isoformat(timespec='hours')
+        }

@@ -2,19 +2,24 @@ from sanic import response
 from sanic.response import json, text
 from sanic import Blueprint
 
-import os
-import uuid
 from base64 import b64encode, b64decode
 from sqlalchemy import select
 from sqlalchemy.sql.expression import false
 from sqlalchemy.sql.functions import user
+from sqlalchemy.sql.operators import exists
+
+import os
+import uuid
+
 from server.models import User, Token
 from server.key_manager import generate_signature, verify_signature
 from server.app import async_session
 
 bp = Blueprint(__name__)
 
-def fail():
+def fail(msg=None):
+    if msg:
+        return json({'status': 'request failed', 'message': msg}, status=201)
     return json({'status': 'request failed'}, status=201)
 
 async def safe_add(obj):
@@ -88,7 +93,6 @@ async def check_token(token: str):
         if not response:
             return False
         tokens = response.scalars().all()
-        print(tokens)
         if len(tokens) != 1:
             return False
         
@@ -180,7 +184,6 @@ async def login(request):
     
     
     async with async_session() as session:
-        print('183')
         statement = select(User).where(User.encrypted_license_key == request.json['key'])
         response = await session.execute(statement)
         if not response:
@@ -199,15 +202,44 @@ async def login(request):
         except Exception as e:
             print(e)
             return fail()
+        
+        # check if user account has been suspended
+        if user.suspended:
+            return fail()
     
-    return text('201', status=201)
-    # return text(f'Hello form registration. \
-    #             Master token is {master_token} \
-    #             Email is {email} \
-    #             ')
     return json({'status': 'success'}, status=201)
 
-  
-@bp.get("/register")
-async def register(request):
-    return text(f'Hello form registration.')
+
+@bp.post('/deregister')
+async def deregister_license(request):
+    if not auth_admin(request):
+        fail()
+    
+    if 'license_key' not in request.json:
+        fail('No license key provided')
+    
+    async with async_session() as session:
+        statement = select(User).where(User.encrypted_license_key == request.json['license_key'])
+        response = await session.execute(statement)
+        if not response:
+            return fail()
+        
+        users_list = response.scalars().all()
+        
+        if len(users_list) != 1:
+            return fail()
+        
+        user = users_list[0]
+        
+        session.delete(user)
+    
+    return json({'status': 'success'}, status=201)
+
+@bp.post('/activate')
+async def activate(request):
+    if not auth_admin(request):
+        fail()
+        
+    
+    
+    

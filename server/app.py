@@ -17,7 +17,7 @@ loop = asyncio.get_event_loop()
 async def init_db():
     global engine, async_session
     engine = create_async_engine(
-        f"postgresql+asyncpg://{os.environ['USER']}:{os.environ['PASSWORD']}@database/{os.environ['DATABASE']}", echo=True,
+        f"postgresql+asyncpg://{os.environ['DBUSER']}:{os.environ['DBPASSWORD']}@localhost/{os.environ['DATABASE']}", echo=True,
     )
     # engine = create_async_engine(
     #     f"sqlite+asyncpg:///verification_database.db", echo=True,
@@ -54,8 +54,10 @@ def create_application():
     key_manager.setup_keys(save_to_file=True)
     key_manager.setup_keys(save_to_file=False) 
     
-    from . import api
-    app.blueprint(api.api_group)
+    from .api import api_group
+    from .ui import license_verificiton_ui_bp
+    app.blueprint(license_verificiton_ui_bp)
+    app.blueprint(api_group)
 
     return app
     
