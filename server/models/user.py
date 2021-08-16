@@ -1,3 +1,4 @@
+from os import stat
 from sqlalchemy import Column
 from sqlalchemy import BigInteger
 from sqlalchemy import Boolean
@@ -56,6 +57,15 @@ class User(Base, BasicModel):
     async def get(id):
         async with session() as s:
             return await s.get(User, id)
+    
+    @staticmethod
+    async def all():
+        async with session() as s:
+            statement = select(User)
+            resp = await s.execute(statement)
+            
+            objs = resp.all()
+            return objs if len(objs) > 0 else None
 
     def as_dict(self):
         return {
@@ -63,5 +73,6 @@ class User(Base, BasicModel):
             'name': self.name,
             'email': self.email,
             'key': self.encrypted_license_key,
-            'suspended': self.suspended
+            'suspended': self.suspended,
+            'creation_date': self.created_date.isoformat(timespec='hours')
         }

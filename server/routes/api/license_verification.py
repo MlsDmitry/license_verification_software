@@ -23,6 +23,14 @@ def fail(msg=None, status_code=201):
         return json({'status': 'request failed', 'message': msg}, status=status_code)
     return json({'status': 'request failed'}, status=status_code)
 
+def success(msg=None, data: dict=None, status_code=201):
+    resp = {'status': 'success'}
+    if msg:
+        resp.update({'message': msg})
+    if data:
+        resp.update(data)
+    return json(resp, status=status_code)
+
 
 def auth_admin(request):
     if 'master_key' not in request.json:
@@ -39,7 +47,7 @@ async def handle_token(request):
         return False
     
     unique_token = await Token.generate_unique_token()
-    token = Token(token=unique_token, token_type='one-time')
+    token = Token(unique_token, 'one-time')
         
     commit_success = await token.add()
     if not commit_success:
@@ -90,8 +98,7 @@ async def handle_client(request):
     if not commit_success:
         return False
     
-    
-    return encoded_key
+    return user
                 
 
 @bp.post("/register")
@@ -104,13 +111,13 @@ async def register(request):
         if not token:
             return fail()
         
-        return json({'status': 'success', 'token': token.token}, status=201)
+        return success(data={'id': token.id, 'token': token.token})
     elif request.json['type'] == 'workstation':
-        key = await handle_client(request)
-        if not key:
+        user = await handle_client(request)
+        if not user:
             return fail()
         
-        return json({'status': 'success', 'license_key': key}, status=201)
+        return success(data={'id': user.id, 'key': user.encrypted_license_key})
         
     return fail()
             
@@ -129,19 +136,13 @@ async def login(request):
     except Exception as e:
         print(e)
         return fail()
-    
-    # if len(key) != 256:
-    #     return fail()
-    
+
     
     user = await User.get_by_key(request.json['key'])
     if not user:
         return fail()
     
-    print('Got user!', user)
-    print(user.__dict__)    
     try:
-        print('UUID here!!', uuid, user.salt)
         if not verify_signature(f'{uuid}{user.salt}', key):
             return fail()
     except Exception as e:
@@ -171,12 +172,8 @@ async def deregister_license(request):
     if not commit_success:
         return fail()
     
-    return json({'status': 'success'}, status=201)
+    return success()
 
-@bp.post('/activate')
-async def activate(request):
-    if not auth_admin(request):
-        fail()
         
     
     

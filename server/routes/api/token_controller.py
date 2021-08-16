@@ -16,7 +16,7 @@ def success(msg=None, data: dict=None, status_code=201):
         resp.update({'message': msg})
     if data:
         resp.update(data)
-    return json({'status': 'success'}, status=status_code)
+    return json(resp, status=status_code)
 
 
 @bp.middleware('request')
@@ -35,7 +35,7 @@ def auth_check(request):
 @bp.post('/')
 async def token(request):
     unique_token = await Token.generate_unique_token()
-    token = Token(token=unique_token, token_type='one-time')
+    token = Token(unique_token, 'one-time')
     return success(data={'token': token.token})
 
 @bp.delete('/<token_id:int>/delete')

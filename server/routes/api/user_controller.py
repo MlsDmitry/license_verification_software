@@ -11,11 +11,13 @@ def fail(msg=None, status_code=201):
         return json({'status': 'request failed', 'message': msg}, status=status_code)
     return json({'status': 'request failed'}, status=status_code)
 
-def success(msg=None, status_code=201):
+def success(msg=None, data: dict=None, status_code=201):
+    resp = {'status': 'success'}
     if msg:
-        return json({'status': 'success', 'message': msg}, status=status_code)
-    return json({'status': 'success'}, status=status_code)
-
+        resp.update({'message': msg})
+    if data:
+        resp.update(data)
+    return json(resp, status=status_code)
 
 @bp.middleware('request')
 def json_presence_check(request):

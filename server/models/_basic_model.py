@@ -20,6 +20,7 @@ class BasicModel:
             await s.delete(self)
             return await self._commit(s)
         
+        
     async def update(self, data):
         for key in data:
             setattr(self, key, data[key])
