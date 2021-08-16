@@ -1,1 +1,0 @@
-from .license_verification_ui import bp as license_verificiton_ui_bp
