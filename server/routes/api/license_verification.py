@@ -15,12 +15,13 @@ from server.models import User, Token
 from server.key_manager import generate_signature, verify_signature
 
 
-bp = Blueprint(__name__)
+bp = Blueprint('license_verification_api')
 
-def fail(msg=None):
+
+def fail(msg=None, status_code=201):
     if msg:
-        return json({'status': 'request failed', 'message': msg}, status=201)
-    return json({'status': 'request failed'}, status=201)
+        return json({'status': 'request failed', 'message': msg}, status=status_code)
+    return json({'status': 'request failed'}, status=status_code)
 
 
 def auth_admin(request):
@@ -37,7 +38,8 @@ async def handle_token(request):
     if not auth_admin(request):
         return False
     
-    token = Token()
+    unique_token = await Token.generate_unique_token()
+    token = Token(token=unique_token, token_type='one-time')
         
     commit_success = await token.add()
     if not commit_success:
@@ -90,8 +92,7 @@ async def handle_client(request):
     
     
     return encoded_key
-    
-            
+                
 
 @bp.post("/register")
 async def register(request):

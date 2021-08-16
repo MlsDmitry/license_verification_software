@@ -1,2 +1,2 @@
-from .api import api_group as license_api_bp
+from .api import api_routes
 from .ui import license_verificiton_ui_bp

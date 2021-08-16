@@ -16,8 +16,8 @@ class User(Base, BasicModel):
     __tablename__ = 'users'
 
     id = Column(BigInteger, primary_key=True)
-    name = Column(String, unique=False, nullable=True)
-    email = Column(String, unique=True, nullable=True)
+    name = Column(String, unique=False, nullable=True, default='')
+    email = Column(String, unique=True, nullable=True, default='')
     uuid = Column(String, nullable=False, unique=True)
     salt = Column(String, nullable=False, unique=True)
     encrypted_license_key = Column(Text, nullable=False, unique=True)
@@ -40,7 +40,9 @@ class User(Base, BasicModel):
         async with session() as s:
             statement = select(User).where(User.encrypted_license_key == key).limit(1)
             resp = await s.execute(statement)
-            return resp.first()[0]
+            
+            obj = resp.first()
+            return obj[0] if obj else None
 
     @staticmethod
     def check_uuid(uuid: str):
@@ -49,3 +51,17 @@ class User(Base, BasicModel):
     @staticmethod
     def parse_uuid(uuid: str):
         return ''.join(uuid.split('-'))
+    
+    @staticmethod
+    async def get(id):
+        async with session() as s:
+            return await s.get(User, id)
+
+    def as_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'key': self.encrypted_license_key,
+            'suspended': self.suspended
+        }

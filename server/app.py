@@ -65,8 +65,8 @@ def create_application():
     # generate public and private keys
     key_manager.setup_keys(save_to_file=True)
 
-    from .routes import license_verificiton_ui_bp, license_api_bp
+    from .routes import license_verificiton_ui_bp, api_routes
     app.blueprint(license_verificiton_ui_bp)
-    app.blueprint(license_api_bp)
+    app.blueprint(api_routes)
 
     return app

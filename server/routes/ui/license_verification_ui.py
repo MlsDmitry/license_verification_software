@@ -5,13 +5,22 @@ import os
 
 from server.models import User, Token
 
-bp = Blueprint(__name__)
+bp = Blueprint("license_verification_ui")
 
+
+def fail(msg=None, status_code=201):
+    if msg:
+        return json({'status': 'request failed', 'message': msg}, status=status_code)
+    return json({'status': 'request failed'}, status=status_code)
 
 def auth_admin(request):
     master_key = request.form.get('masterkey')
     return os.environ['MASTER_PASSWORD'] == master_key
 
+@bp.middleware('request')
+def json_presence_check(request):
+    if not request.form:
+        return fail(status_code=422) 
 
 @bp.post('/show')
 async def show(request):
@@ -44,11 +53,11 @@ async def show(request):
             return json(response.all(), status=201)
 
 
-@bp.delete("/token/delete")
-async def delete_token(request):
-    if not auth_admin(request):
-        return text('', status=422)
+# @bp.delete("/token/delete")
+# async def delete_token(request):
+#     if not auth_admin(request):
+#         return text('', status=422)
 
-    token = request.form.get('token')
-    if not token:
-        return text('', status=422)
+#     token = request.form.get('token')
+#     if not token:
+#         return text('', status=422)

@@ -22,14 +22,18 @@ class Token(Base, BasicModel):
     type = Column(String, default='one-time')
     created_date = Column(DateTime(timezone=True), server_default=func.now())
 
-    def __init__(self, token_type) -> None:
-        self.token = self.generate_unique_token()
+    def __init__(self, token, token_type) -> None:
+        self.token = token
         self.type = token_type
 
-    def generate_unique_token(self):
+    @staticmethod
+    async def generate_unique_token():
         token = secrets.token_urlsafe(1024)
         fails = 0
-        while self.get_by_token(token):
+        while True:
+            exists = await Token.get_by_token(token)
+            if not exists:
+                break
             fails += 1
             if fails > 15:
                 return ''
@@ -40,12 +44,19 @@ class Token(Base, BasicModel):
     async def get_by_token(token):
         async with session() as s:
             statement = select(Token).where(Token.token == token)
-            resp = s.execute(statement)
+            resp = await s.execute(statement)
             
-            return resp.one_or_none()
+            obj = resp.first()
+            return obj[0] if obj else None
 
+    @staticmethod
+    async def get(id):
+        async with session() as s:
+            return await s.get(Token, id)
+    
     def as_dict(self):
         return {
+            'id': self.id,
             'token': self.token,
             'type': self.token,
             'creation_date': self.created_date.isoformat(timespec='hours')

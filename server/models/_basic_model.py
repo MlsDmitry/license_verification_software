@@ -19,3 +19,11 @@ class BasicModel:
         async with session() as s:
             await s.delete(self)
             return await self._commit(s)
+        
+    async def update(self, data):
+        for key in data:
+            setattr(self, key, data[key])
+            
+        async with session() as s:
+            return await self._commit(s)
+
