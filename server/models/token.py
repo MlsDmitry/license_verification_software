@@ -45,7 +45,7 @@ class Token(Base, BasicModel):
         async with session() as s:
             statement = select(Token).where(Token.token == token)
             resp = await s.execute(statement)
-            
+
             obj = resp.first()
             return obj[0] if obj else None
 
@@ -53,16 +53,16 @@ class Token(Base, BasicModel):
     async def get(id):
         async with session() as s:
             return await s.get(Token, id)
-        
+
     @staticmethod
     async def all():
         async with session() as s:
             statement = select(Token)
             resp = await s.execute(statement)
-            
+
             objs = resp.all()
             return objs if len(objs) > 0 else None
-    
+
     def as_dict(self):
         return {
             'id': self.id,

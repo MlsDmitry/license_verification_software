@@ -39,9 +39,10 @@ class User(Base, BasicModel):
     @staticmethod
     async def get_by_key(key):
         async with session() as s:
-            statement = select(User).where(User.encrypted_license_key == key).limit(1)
+            statement = select(User).where(
+                User.encrypted_license_key == key).limit(1)
             resp = await s.execute(statement)
-            
+
             obj = resp.first()
             return obj[0] if obj else None
 
@@ -52,18 +53,18 @@ class User(Base, BasicModel):
     @staticmethod
     def parse_uuid(uuid: str):
         return ''.join(uuid.split('-'))
-    
+
     @staticmethod
     async def get(id):
         async with session() as s:
             return await s.get(User, id)
-    
+
     @staticmethod
     async def all():
         async with session() as s:
             statement = select(User)
             resp = await s.execute(statement)
-            
+
             objs = resp.all()
             return objs if len(objs) > 0 else None
 

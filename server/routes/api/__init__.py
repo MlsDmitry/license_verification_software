@@ -4,7 +4,11 @@ from .license_verification import bp as license_verification_bp
 from .token_controller import bp as token_controller_bp
 from .user_controller import bp as user_controller_bp
 
-api_routes = Blueprint.group(license_verification_bp, user_controller_bp, token_controller_bp, url_prefix='/api')
+api_routes = Blueprint.group(
+    license_verification_bp,
+    user_controller_bp,
+    token_controller_bp,
+    url_prefix='/api')
 
 
 @api_routes.middleware('request')
