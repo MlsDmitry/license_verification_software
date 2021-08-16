@@ -143,3 +143,5 @@ dmypy.json
 cython_debug/
 
 creds.txt
+privkey.pem
+pubkey.pem
