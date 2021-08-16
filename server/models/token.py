@@ -22,9 +22,9 @@ class Token(Base, BasicModel):
     type = Column(String, default='one-time')
     created_date = Column(DateTime(timezone=True), server_default=func.now())
 
-    def __init__(self, type) -> None:
+    def __init__(self, token_type) -> None:
         self.token = self.generate_unique_token()
-        self.type = type
+        self.type = token_type
 
     def generate_unique_token(self):
         token = secrets.token_urlsafe(1024)
