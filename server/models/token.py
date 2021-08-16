@@ -41,8 +41,8 @@ class Token(Base, BasicModel):
         async with session() as s:
             statement = select(Token).where(Token.token == token)
             resp = s.execute(statement)
-
-        return resp.one_or_none()
+            
+            return resp.one_or_none()
 
     def as_dict(self):
         return {

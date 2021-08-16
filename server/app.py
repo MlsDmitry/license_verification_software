@@ -36,9 +36,6 @@ async def init_db():
         f"postgresql+asyncpg://{os.environ['DBUSER']}:{os.environ['DBPASSWORD']}@{os.environ['IP']}/{os.environ['DATABASE']}",
         echo=True,
     )
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
 
     async_session = sessionmaker(
         engine,
@@ -46,6 +43,12 @@ async def init_db():
         class_=AsyncSession,
         query_cls=_get_query_cls)
 
+    from . import models
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+    
+    
     await engine.dispose()
 
 
@@ -58,8 +61,6 @@ def create_application():
     app = Sanic("Verification_server")
 
     loop.run_until_complete(init_db())
-
-    from .models import Token, User
 
     # generate public and private keys
     key_manager.setup_keys(save_to_file=True)

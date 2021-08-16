@@ -67,8 +67,6 @@ async def handle_client(request):
     if 'email' in request.json:
         user.email = request.json['email']
         
-    if 'activated' in request.json:
-        user.activated = bool(request.json['activated'])
     
     if 'name' in request.json:
         user.name = request.json['name']
@@ -89,6 +87,7 @@ async def handle_client(request):
     commit_success = await user.add()
     if not commit_success:
         return False
+    
     
     return encoded_key
     
@@ -116,7 +115,7 @@ async def register(request):
             
 @bp.post('/login')
 async def login(request):
-    if ['key', 'uuid'] not in request.json:
+    if 'key' not in request.json or 'uuid' not in request.json:
         return fail()
     
     uuid = User.parse_uuid(request.json['uuid'])
@@ -125,7 +124,7 @@ async def login(request):
     
     key = b''
     try:
-        key = b64decode(request.json['key']).encode('ascii')
+        key = b64decode(request.json['key'].encode('ascii'))
     except Exception as e:
         print(e)
         return fail()
@@ -134,12 +133,15 @@ async def login(request):
     #     return fail()
     
     
-    user = User.get_by_key(request.json['key'])
+    user = await User.get_by_key(request.json['key'])
     if not user:
         return fail()
     
+    print('Got user!', user)
+    print(user.__dict__)    
     try:
-        if not verify_signature(f'uuid{user.salt}', key):
+        print('UUID here!!', uuid, user.salt)
+        if not verify_signature(f'{uuid}{user.salt}', key):
             return fail()
     except Exception as e:
         print(e)
@@ -160,7 +162,7 @@ async def deregister_license(request):
     if 'key' not in request.json:
         return fail('No license key provided')
     
-    user = User.get_by_key(request.json['key'])
+    user = await User.get_by_key(request.json['key'])
     if not user:
         return fail()
     # delete

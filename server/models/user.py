@@ -17,14 +17,14 @@ class User(Base, BasicModel):
 
     id = Column(BigInteger, primary_key=True)
     name = Column(String, unique=False, nullable=True)
-    email = Column(String, unique=True)
-    uuid = Column(String, nullable=False)
-    salt = Column(String, nullable=False)
+    email = Column(String, unique=True, nullable=True)
+    uuid = Column(String, nullable=False, unique=True)
+    salt = Column(String, nullable=False, unique=True)
     encrypted_license_key = Column(Text, nullable=False, unique=True)
     suspended = Column(Boolean, default=False)
     created_date = Column(DateTime(timezone=True), server_default=func.now())
 
-    __mapper_args__ = {"eager_defaults": True}
+    # __mapper_args__ = {"eager_defaults": True}
 
     def __init__(self, name='', email='', uuid='', salt='',
                  encrypted_license_key='', suspended=False):
@@ -38,10 +38,9 @@ class User(Base, BasicModel):
     @staticmethod
     async def get_by_key(key):
         async with session() as s:
-            statement = select(User).where(User.encrypted_license_key == key)
+            statement = select(User).where(User.encrypted_license_key == key).limit(1)
             resp = await s.execute(statement)
-
-        return resp.one_or_none()
+            return resp.first()[0]
 
     @staticmethod
     def check_uuid(uuid: str):
