@@ -60,7 +60,7 @@ async def handle_token(request):
 
 
 async def handle_client(request):
-    if 'uuid' not in request.json:
+    if 'sid' not in request.json:
         return False
 
     if 'token' in request.json:
@@ -83,15 +83,14 @@ async def handle_client(request):
     if 'name' in request.json:
         user.name = request.json['name']
 
-    uid = User.parse_uuid(request.json['uuid'])
+    if not User.check_sid(request.json['sid']):
+            return False
+    uid = User.parse_sid(request.json['sid'])
 
-    if not User.check_uuid(uid):
-        return False
-
-    user.uuid = uid
+    user.sid = uid
     user.salt = uuid.uuid4().hex
 
-    encrypted_key = generate_signature(user.uuid + user.salt)
+    encrypted_key = generate_signature(user.sid + user.salt)
     encoded_key = b64encode(encrypted_key).decode('ascii')
 
     user.encrypted_license_key = encoded_key
@@ -126,13 +125,14 @@ async def register(request):
 
 @bp.post('/login')
 async def login(request):
-    if 'key' not in request.json or 'uuid' not in request.json:
+    if 'key' not in request.json or 'sid' not in request.json:
         return fail()
 
-    uuid = User.parse_uuid(request.json['uuid'])
-    if not User.check_uuid(uuid):
+    if not User.check_sid(request.json['sid']):
         return fail()
-
+    
+    sid = User.parse_sid(request.json['sid'])
+    
     key = b''
     try:
         key = b64decode(request.json['key'].encode('ascii'))
@@ -145,7 +145,7 @@ async def login(request):
         return fail()
 
     try:
-        if not verify_signature(f'{uuid}{user.salt}', key):
+        if not verify_signature(f'{sid}{user.salt}', key):
             return fail()
     except Exception as e:
         print(e)
