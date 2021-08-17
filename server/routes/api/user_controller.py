@@ -39,7 +39,6 @@ def auth_check(request):
         return fail(status_code=401)
 
 
-
 @bp.post('/<user_id:int>/delete')
 async def delete(request, user_id: int):
     user = await User.get(user_id)

@@ -84,7 +84,7 @@ async def handle_client(request):
         user.name = request.json['name']
 
     if not User.check_sid(request.json['sid']):
-            return False
+        return False
     uid = User.parse_sid(request.json['sid'])
 
     user.sid = uid
@@ -130,9 +130,9 @@ async def login(request):
 
     if not User.check_sid(request.json['sid']):
         return fail()
-    
+
     sid = User.parse_sid(request.json['sid'])
-    
+
     key = b''
     try:
         key = b64decode(request.json['key'].encode('ascii'))

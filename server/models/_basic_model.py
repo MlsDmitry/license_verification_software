@@ -25,7 +25,13 @@ class BasicModel:
     async def update(self, data):
         from server.models import User
         async with session() as s:
-            user_copy = User(self.name, self.email, self.sid, self.salt, self.encrypted_license_key, self.suspended)
+            user_copy = User(
+                self.name,
+                self.email,
+                self.sid,
+                self.salt,
+                self.encrypted_license_key,
+                self.suspended)
             user_copy.created_date = self.created_date
             await self.delete()
             for key in data:

@@ -1,9 +1,9 @@
+import pytest
+from server.app import create_application
 import sys
 from os import getcwd
 sys.path.append(getcwd())
 
-from server.app import create_application
-import pytest
 
 @pytest.fixture
 def app():
