@@ -42,10 +42,13 @@ def auth_check(request):
 async def token(request):
     unique_token = await Token.generate_unique_token()
     token = Token(unique_token, 'one-time')
+    commit_success = await token.add()
+    if not commit_success:
+        return fail()
     return success(data={'token': token.token})
 
 
-@bp.delete('/<token_id:int>/delete')
+@bp.post('/<token_id:int>/delete')
 async def delete(request, token_id):
     token = await Token.get(token_id)
     if not token:
@@ -53,6 +56,6 @@ async def delete(request, token_id):
 
     commit_sucess = await Token.delete(token)
     if not commit_sucess:
-        return fail('Token not deleted', status_code=204)
+        return fail('Token not deleted', status_code=201)
 
     return success(status_code=200)

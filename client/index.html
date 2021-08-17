@@ -4,29 +4,33 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="css/indes.css" />
+    <title>License Verification UI</title>
 </head>
 <body>
-    <textarea name="" placeholder="Your master key" id="masterkey" cols="40" rows="10" form="masterform"></textarea>
-    <form id="masterform" method="POST">
+    <textarea name="master_key" placeholder="Your master key" id="master_key" cols="40" rows="10" form="master_form"></textarea>
+    <form id="master_form">
         <label for="action">Select action</label>
         <select name="action" id="action">
             <option value="showtokens">Tokens</option>
-            <option value="showlicensekeys">License Keys</option>
+            <option value="showusers">Users</option>
+            <option value="generatetoken">Generate Token</option>
         </select>
-        <button type="submit" id="submit-btn">Show</button>
+        <button type="submit" id="submit_btn">Show</button>
     </form>
+    <label id="status">No status</label>
     <div id="content">
-        <table>
-            <tr id="client">
+        <table id="table_view">
+            <!-- <tr id="entry">
                 <th>name</th>
                 <th>email</th>
-                <th>uuid</th>
+                <th>key</th>
                 <th>suspended</th>
                 <th>creation date</th>
-            </tr>
+            </tr> -->
         </table>
     </div>
-    <script src="static/js/index.js"></script>
+    <script src="js/app.js"></script>
+    <!-- <script src="static/js/index.js" type="module"></script> -->
 </body>
 </html>

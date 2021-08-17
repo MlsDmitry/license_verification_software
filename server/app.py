@@ -4,6 +4,7 @@ from sanic import Sanic
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker, Query, Mapper, declarative_base
+from sanic_cors import CORS, cross_origin
 from dotenv import load_dotenv
 import os
 
@@ -61,6 +62,7 @@ def create_application():
 
     loop.run_until_complete(init_db())
 
+    CORS(app)
     # generate public and private keys
     key_manager.setup_keys(save_to_file=True)
 

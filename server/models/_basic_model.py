@@ -1,3 +1,4 @@
+
 from server.app import async_session as session
 
 
@@ -22,8 +23,12 @@ class BasicModel:
             return await self._commit(s)
 
     async def update(self, data):
-        for key in data:
-            setattr(self, key, data[key])
-
+        from server.models import User
         async with session() as s:
+            user_copy = User(self.name, self.email, self.sid, self.salt, self.encrypted_license_key, self.suspended)
+            user_copy.created_date = self.created_date
+            await self.delete()
+            for key in data:
+                setattr(user_copy, key, data[key])
+            await user_copy.add()
             return await self._commit(s)

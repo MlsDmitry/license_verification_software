@@ -28,6 +28,7 @@ def success(msg=None, data: dict = None, status_code=201):
 @bp.middleware('request')
 def json_presence_check(request):
     if not request.form:
+        print('failed form check')
         return fail(status_code=422)
 
 
@@ -35,6 +36,7 @@ def json_presence_check(request):
 def auth_admin(request):
     master_key = request.form.get('master_key')
     if not os.environ['MASTER_PASSWORD'] == master_key:
+        print('wrong master password')
         return fail(status_code=401)
 
 
@@ -42,6 +44,7 @@ def auth_admin(request):
 async def show(request):
     action = request.form.get('action')
     if not action:
+        print('didn\' find action')
         return fail(status_code=422)
 
     if action == 'showtokens':

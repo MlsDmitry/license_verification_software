@@ -39,10 +39,6 @@ def auth_check(request):
         return fail(status_code=401)
 
 
-@bp.get('/')
-def root(request):
-    return text('it\'s okay!')
-
 
 @bp.post('/<user_id:int>/delete')
 async def delete(request, user_id: int):
@@ -68,9 +64,10 @@ async def patch(request, user_id: int):
     if not user:
         return fail('User not found', 404)
 
+    print(request.json)
     commit_sucess = await user.update(request.json)
 
     if not commit_sucess:
-        return fail('User not deleted', status_code=204)
+        return fail('User not deleted', status_code=201)
 
     return success(status_code=200)
