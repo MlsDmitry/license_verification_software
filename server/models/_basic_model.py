@@ -33,8 +33,15 @@ class BasicModel:
                 self.encrypted_license_key,
                 self.suspended)
             user_copy.created_date = self.created_date
+            
             await self.delete()
+            
             for key in data:
-                setattr(user_copy, key, data[key])
+                if key == 'suspended':
+                    setattr(user_copy, key, data[key] == 'true')
+                else:
+                    setattr(user_copy, key, data[key])
+            
             await user_copy.add()
+            
             return await self._commit(s)

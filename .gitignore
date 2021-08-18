@@ -145,3 +145,4 @@ cython_debug/
 creds.txt
 privkey.pem
 pubkey.pem
+db-data/
