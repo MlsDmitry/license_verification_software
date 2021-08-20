@@ -1,0 +1,39 @@
+version: "3"
+
+networks:
+  pynet:
+
+services:
+  server:
+    build: ./server
+    command: "gunicorn -b 0.0.0.0:31563 server:app --worker-class sanic.worker.GunicornWorker"
+    ports:
+      - "31563:31563"
+    volumes:
+      - ./server:/server
+    depends_on:
+      - db
+    networks:
+      - pynet
+  web:
+    build: ./client
+    command: "python -m http.server --directory /client"
+    ports:
+      - "31562:8000"
+    volumes:
+      - ./client:/client
+    depends_on:
+      - server
+  db:
+    image: postgres:13
+    ports:
+      - 5432:5432
+    volumes:
+      - ./db-data:/var/lib/postgresql/pgdata
+    environment:
+      - POSTGRES_DB=${DATABASE}
+      - POSTGRES_USER=${DBUSER}
+      - POSTGRES_PASSWORD=${DBPASSWORD}
+      - PGDATA=/var/lib/postgresql/pgdata
+    networks:
+      - pynet
